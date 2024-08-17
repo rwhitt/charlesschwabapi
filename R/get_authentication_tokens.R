@@ -97,12 +97,17 @@ get_authentication_tokens <- function(app_key,
       # Create variable for returned URL after login
       return_url <- readLines("stdin", n = 1)
       # Get CS code
-      csapi_code <- paste0(stringr::str_sub(return_url,
-                                            start = stringr::str_locate(return_url, # nolint
-                                                                    pattern = "code=")[2] + 1, # nolint
-                                            end = stringr::str_locate(return_url, # nolint
-                                                                    pattern = "%40&")[1] - 1), # nolint
-                           "@")
+      # csapi_code <- paste0(stringr::str_sub(return_url,
+      #                                       start = stringr::str_locate(return_url, # nolint
+      #                                                               pattern = "code=")[2] + 1, # nolint
+      #                                       end = stringr::str_locate(return_url, # nolint
+      #                                                               pattern = "%40&")[1] - 1), # nolint
+      #                      "@")
+      
+      parsed_url <- httr::parse_url(return_url)
+      query_params <- parsed_url$query
+      csapi_code <- query_params$code
+      
       # Generate payload
       payload <- list("grant_type" = "authorization_code",
                       "code" = csapi_code,
